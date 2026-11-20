@@ -1,0 +1,10 @@
+# Upload the whole application inside the domain's htdocs.
+# Block direct requests to private application paths before rewriting to public/.
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteRule ^(?:app|bootstrap|config|database|resources|routes|storage|vendor|tests|scripts|deployment|docs)(?:/|$) - [F,L,NC]
+    RewriteRule (^|/)\. - [F,L]
+    RewriteRule ^(?:artisan|composer\.(?:json|lock)|phpunit\.xml|README\.md)$ - [F,L,NC]
+    RewriteRule ^public(?:/|$) - [L]
+    RewriteRule ^(.*)$ public/$1 [L]
+</IfModule>

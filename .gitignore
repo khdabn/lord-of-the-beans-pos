@@ -1,0 +1,17 @@
+/.env
+/.env.*
+!/.env.example
+/vendor/
+/node_modules/
+/deploy-output/
+/.phpunit.cache/
+/.phpunit.result.cache
+/database/*.sqlite*
+/public/storage
+*.log
+*.sql
+.DS_Store
+Thumbs.db
+/.idea/
+/.vscode/
+/storage/framework/testing/

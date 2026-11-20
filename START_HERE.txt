@@ -1,0 +1,22 @@
+Lord of the Beans - IT0049 Complete Point-of-Sale System
+
+1. Extract this folder as C:\xampp\htdocs\soko-pos.
+2. Start MySQL in XAMPP. Open this folder in VS Code.
+3. Run: php scripts/setup.php
+   The first run creates .env and stops so you can edit it.
+4. Open .env. Set ADMIN_PASSWORD to your own password (12+ characters).
+   Keep DB_DATABASE=soko_pos, DB_USERNAME=root and your local DB_PASSWORD.
+5. Run again: php scripts/setup.php
+6. Create an EMPTY database named soko_pos in local phpMyAdmin.
+7. Run: php artisan migrate --seed
+8. Run: php artisan test
+9. Run: php artisan serve
+10. Open http://127.0.0.1:8000 and log in as group4 with your chosen password.
+
+The source ZIP contains application code and bundled artwork. Composer installs
+Laravel and creates composer.lock on your computer. Internet is needed for that
+step. No npm, Node.js, CDN, storage symlink, or paid service is required.
+
+Keep the php artisan serve terminal open while using the local website.
+Read README.md and docs/GITHUB_AND_INFINITYFREE.md for the next steps.
+Do not upload this source ZIP directly to hosting; build the hosting ZIP first.
