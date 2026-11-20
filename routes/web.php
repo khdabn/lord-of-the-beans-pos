@@ -10,6 +10,7 @@ Route::middleware(['auth','auth.session'])->group(function () {
     Route::get('/',DashboardController::class)->name('dashboard');
     Route::post('/logout',[AuthController::class,'destroy'])->name('logout');
     Route::resource('products',ProductController::class)->except('show');
+    Route::delete('/products/{product}/permanent', [ProductController::class, 'permanentlyDelete'])->name('products.permanent-delete');
     Route::patch('/products/{product}/restore',[ProductController::class,'restore'])->name('products.restore');
     Route::resource('customers',CustomerController::class)->except('show');
     Route::resource('staff',StaffController::class)->except('show')->parameters(['staff'=>'staff']);

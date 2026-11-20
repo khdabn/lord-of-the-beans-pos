@@ -10,7 +10,7 @@ class ProductController extends Controller
     public function index(Request $request)
     {
         $filters = $request->validate(['q'=>['nullable','string','max:100'],'status'=>['nullable','in:active,low,archived']]);
-        $query = Product::query()->where('is_archived', ($filters['status'] ?? '') === 'archived');
+        $query = Product::query()->withCount('sales')->where('is_archived', ($filters['status'] ?? '') === 'archived');
         if (($filters['status'] ?? '') === 'low') $query->where('stock_quantity','<=',5);
         if ($search = $filters['q'] ?? null) $query->where('name','like','%'.$search.'%');
         return view('products.index', ['products'=>$query->orderBy('name')->paginate(12)->withQueryString(), 'count'=>Product::active()->count()]);
@@ -50,5 +50,37 @@ class ProductController extends Controller
     {
         $product->update(['is_archived'=>false]);
         return redirect()->route('products.index')->with('success','Product restored to the catalog.');
+    }
+
+    public function permanentlyDelete(Product $product, ImageService $images)
+    {
+        $image = DB::transaction(function () use ($product) {
+            // Checkout locks this same row. Check eligibility again on the server.
+            $locked = Product::lockForUpdate()->findOrFail($product->id);
+            if (!$locked->is_archived) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'product'=>'Archive this menu item before permanently deleting it.',
+                ]);
+            }
+            if ($locked->sales()->exists()) {
+                throw \Illuminate\Validation\ValidationException::withMessages([
+                    'product'=>'This item has recorded sales and cannot be permanently deleted. Keep it archived to preserve sales history.',
+                ]);
+            }
+            $image = $locked->image;
+            $locked->delete();
+            return $image;
+        }, 3);
+        // Clean up only generated uploads after the database commit succeeds.
+        // Bundled demo artwork is shared and ImageService never deletes it.
+        try {
+            $images->delete($image);
+        } catch (\Throwable $error) {
+            report($error);
+            return redirect()->route('products.index', ['status'=>'archived'])
+                ->with('success','Menu item permanently deleted. Its unused image could not be removed from storage.');
+        }
+        return redirect()->route('products.index', ['status'=>'archived'])
+            ->with('success','Menu item permanently deleted.');
     }
 }
